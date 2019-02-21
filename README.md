@@ -1,38 +1,45 @@
-# Pokémon Emerald
+# Pokeemerald
+Repositorio para experimentos con pokeemerald.
 
-[![Build Status][travis-badge]][travis]
+## Estructura
+Para mantener el orden todas las adiciones se crean en la carpeta src/addons, por ejemplo el código del Pokémon Follower estaría en src/addons/follower.
 
-This is a disassembly of Pokémon Emerald.
+## Adiciones
+### Pokémon Follower
+Se ha empezado a trabajar en el Pokémon Follower.
+El Follower tiene una ID de evento asignada así que debería de poder moverse con un applymovement.
+#### Cosas hechas
+* El seguidor aparece una vez tengas un Pokémon válido y des un paso.
+* Sigue al personaje y cambia su velocidad cuando es necesario.
+* El personaje tiene que esperar a que el seguidor termine su animación para poder continuar, por ejemplo al saltar por los desniveles.
+* Al interactuar con el seguidor se ejecuta un script, temporalmente asignado al PC.
+* El seguidor es traspasable por el jugador pero no por los demás eventos.
+#### Cosas por hacer
+* Retocar el sistema que transforma la velocidad del siguiente movimiento.
+* Añadir la habilidad de ocultar al seguidor y hacerlo automáticamente cuando vayamos a surfear o nos montemos en la bicicleta.
 
-It builds the following rom:
+### Expansión de overworlds
+Aun en un estado muy inicial, conseguí expandir los overworlds inicialmente añadiendo un nuevo valor de 4 bits a EventObject y EventObjectTemplate que sirviese como tabla (a lo JPAN), de forma que podía tener 4080 overworlds.
 
-* pokeemerald.gba `sha1: f3ae088181bf583e55daf962a92bb46f4f1d07b7`
+Aunque funcionaba, me gustaría modificar el valor graphicsId de las dos estructuras anteriores y que fuese un valor de 16 bits en lugar de 8 para no tener que estar comprobando la tabla.
 
-To set up the repository, see [INSTALL.md](INSTALL.md).
+Hice algún avance sobre esto modificando también macros/asm/map.inc y cambiando el macro de event_object de esta forma:
 
+```assembly
+	.macro object_event index:req, gfx:req, replacement:req, x:req, y:req, elevation:req, movement_type:req, x_radius:req, y_radius:req, trainer_type:req, sight_radius_tree_etc:req, script:req, event_flag:req
+	.byte \index,
+	.2byte \gfx
+	.byte \replacement, 0
+	.2byte \x
+	.2byte \y
+	.byte \elevation, \movement_type, ((\y_radius << 4) | \x_radius), 0
+	.2byte \trainer_type, \sight_radius_tree_etc
+	.4byte \script
+	.2byte \event_flag
+	.2byte 0
+	inc _num_npcs
+	.endm
+```
 
-## See also
+Con esta modificación el juego funciona cuando se crea una nueva partida (no se puede utilizar la antigua ya que el tamaño del SaveBlock1 cambia) pero se ve que hay algo que sigue causando overflow en algún sitio y el juego deja de responder incluso si únicamente le añado 1 bit más (512 overworlds)
 
-* Disassembly of [**Pokémon Red/Blue**][pokered]
-* Disassembly of [**Pokémon Yellow**][pokeyellow]
-* Disassembly of [**Pokémon Gold**][pokegold]
-* Disassembly of [**Pokémon Crystal**][pokecrystal]
-* Disassembly of [**Pokémon Pinball**][pokepinball]
-* Disassembly of [**Pokémon TCG**][poketcg]
-* Disassembly of [**Pokémon Ruby**][pokeruby]
-* Disassembly of [**Pokémon Fire Red**][pokefirered]
-* Discord: [**pret**][Discord]
-* irc: **irc.freenode.net** [**#pret**][irc]
-
-[pokered]: https://github.com/pret/pokered
-[pokeyellow]: https://github.com/pret/pokeyellow
-[pokegold]: https://github.com/pret/pokegold
-[pokecrystal]: https://github.com/pret/pokecrystal
-[pokepinball]: https://github.com/pret/pokepinball
-[poketcg]: https://github.com/pret/poketcg
-[pokeruby]: https://github.com/pret/pokeruby
-[pokefirered]: https://github.com/pret/pokefirered
-[Discord]: https://discord.gg/6EuWgX9
-[irc]: https://kiwiirc.com/client/irc.freenode.net/?#pret
-[travis]: https://travis-ci.org/pret/pokeemerald
-[travis-badge]: https://travis-ci.org/pret/pokeemerald.svg?branch=master

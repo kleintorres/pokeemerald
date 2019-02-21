@@ -30,6 +30,7 @@
 #include "constants/moves.h"
 #include "constants/songs.h"
 #include "constants/species.h"
+#include "addons/follower/follower.h"
 
 static EWRAM_DATA u8 gUnknown_0203734C = 0;
 EWRAM_DATA struct EventObject gEventObjects[EVENT_OBJECTS_COUNT] = {};
@@ -656,6 +657,10 @@ static void PlayerNotOnBikeMoving(u8 direction, u16 heldKeys)
     }
     else
     {
+        if(CanSpawnFollower()) {
+            SpawnFollower(gEventObjects[gPlayerAvatar.eventObjectId].currentCoords.x, gEventObjects[gPlayerAvatar.eventObjectId].currentCoords.y, direction);
+        }
+        
         PlayerGoSpeed1(direction);
     }
 }
@@ -958,7 +963,7 @@ static void sub_808B6BC(u8 a)
 
 void PlayerSetAnimId(u8 movementActionId, u8 copyableMovement)
 {
-    if (!PlayerIsAnimActive())
+    if (!PlayerIsAnimActive() && EventObjectClearHeldMovementIfFinished(&gEventObjects[gFollower.eventObjectId]))
     {
         PlayerSetCopyableMovement(copyableMovement);
         EventObjectSetHeldMovement(&gEventObjects[gPlayerAvatar.eventObjectId], movementActionId);
@@ -968,6 +973,7 @@ void PlayerSetAnimId(u8 movementActionId, u8 copyableMovement)
 // normal speed (1 speed)
 void PlayerGoSpeed1(u8 a)
 {
+   // MoveFollower(a);
     PlayerSetAnimId(GetWalkNormalMovementAction(a), 2);
 }
 

@@ -94,7 +94,7 @@ void CameraObjectReset1(void);
 void EventObjectSetGraphicsId(struct EventObject *, u8 graphicsId);
 void EventObjectTurn(struct EventObject *, u8);
 void EventObjectTurnByLocalIdAndMap(u8, u8, u8, u8);
-const struct EventObjectGraphicsInfo *GetEventObjectGraphicsInfo(u8 graphicsId);
+const struct EventObjectGraphicsInfo *GetEventObjectGraphicsInfo(u16 graphicsId);
 void npc_by_local_id_and_map_set_field_1_bit_x20(u8, u8, u8, u8);
 void FreeAndReserveObjectSpritePalettes(void);
 void sub_808E82C(u8, u8, u8, s16, s16);

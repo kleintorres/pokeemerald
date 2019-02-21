@@ -25,6 +25,7 @@
 #include "constants/event_object_movement_constants.h"
 #include "constants/event_objects.h"
 #include "constants/field_effects.h"
+#include "addons/follower/follower.h"
 
 // this file was known as evobjmv.c in Game Freak's original source
 
@@ -139,6 +140,7 @@ void (*const gCameraObjectFuncs[])(struct Sprite *) = {
 };
 
 #include "data/field_event_obj/event_object_graphics.h"
+#include "addons/overworlds/overworld_graphics.h"
 
 // movement type callbacks
 static void (*const sMovementTypeCallbacks[])(struct Sprite *) =
@@ -438,6 +440,9 @@ const u8 gInitialMovementTypeFacingDirections[] = {
 #include "data/field_event_obj/base_oam.h"
 #include "data/field_event_obj/event_object_subsprites.h"
 #include "data/field_event_obj/event_object_graphics_info.h"
+#include "addons/overworlds/overworld_graphics_info_pointers.h"
+#include "addons/overworlds/overworld_pic_tables.h"
+#include "addons/overworlds/overworld_graphics_info.h"
 
 const struct SpritePalette sEventObjectSpritePalettes[] = {
     {gEventObjectPalette0,  EVENT_OBJ_PAL_TAG_0},
@@ -2020,10 +2025,14 @@ static void get_berry_tree_graphics(struct EventObject *eventObject, struct Spri
     }
 }
 
-const struct EventObjectGraphicsInfo *GetEventObjectGraphicsInfo(u8 graphicsId)
+const struct EventObjectGraphicsInfo *GetEventObjectGraphicsInfo(u16 graphicsId)
 {
     u8 bard;
 
+    if (graphicsId > 255) 
+    {
+        return gOverworldGraphicsInfoPointers[graphicsId - 256];
+    }
     if (graphicsId >= SPRITE_VAR)
     {
         graphicsId = VarGetEventObjectGraphicsId(graphicsId - SPRITE_VAR);
@@ -4960,6 +4969,12 @@ static bool8 DoesObjectCollideWithObjectAt(struct EventObject *eventObject, s16 
     for (i = 0; i < EVENT_OBJECTS_COUNT; i++)
     {
         curObject = &gEventObjects[i];
+
+        // Si es el jugador intentando traspasar al follower, lo permitimos
+        if(eventObject->localId == EVENT_OBJ_ID_PLAYER && curObject->localId == EVENT_OBJ_ID_FOLLOWER) {
+            continue;
+        }
+
         if (curObject->active && curObject != eventObject)
         {
             if ((curObject->currentCoords.x == x && curObject->currentCoords.y == y) || (curObject->previousCoords.x == x && curObject->previousCoords.y == y))
@@ -5116,12 +5131,28 @@ bool8 EventObjectSetHeldMovement(struct EventObject *eventObject, u8 movementAct
 {
     if (EventObjectIsMovementOverridden(eventObject))
         return TRUE;
-
     UnfreezeEventObject(eventObject);
     eventObject->movementActionId = movementActionId;
     eventObject->heldMovementActive = TRUE;
     eventObject->heldMovementFinished = FALSE;
     gSprites[eventObject->spriteId].data[2] = 0;
+
+    // Añade el siguiente movimiento al follower si estamos moviendo al jugador
+    if(eventObject->localId == 0xFF && (
+        movementActionId == MOVEMENT_ACTION_WALK_NORMAL_RIGHT 
+        || movementActionId == MOVEMENT_ACTION_WALK_NORMAL_LEFT 
+        || movementActionId == MOVEMENT_ACTION_WALK_NORMAL_UP
+        || movementActionId == MOVEMENT_ACTION_WALK_NORMAL_DOWN
+        || movementActionId == MOVEMENT_ACTION_PLAYER_RUN_RIGHT
+        || movementActionId == MOVEMENT_ACTION_PLAYER_RUN_LEFT
+        || movementActionId == MOVEMENT_ACTION_PLAYER_RUN_UP
+        || movementActionId == MOVEMENT_ACTION_PLAYER_RUN_DOWN
+        || movementActionId == MOVEMENT_ACTION_JUMP_2_DOWN
+        || movementActionId == MOVEMENT_ACTION_JUMP_2_LEFT 
+        || movementActionId == MOVEMENT_ACTION_JUMP_2_RIGHT)) {
+        MoveFollower(movementActionId);
+    }
+
     return FALSE;
 }
 

@@ -32,6 +32,7 @@
 #include "constants/map_types.h"
 #include "constants/maps.h"
 #include "constants/songs.h"
+#include "addons/follower/follower.h"
 
 extern bool32 TryStartMatchCall(void);
 
@@ -298,6 +299,11 @@ static const u8 *GetInteractedEventObjectScript(struct MapPosition *position, u8
         eventObjectId = GetEventObjectIdByXYZ(position->x + gDirectionToVectors[direction].x, position->y + gDirectionToVectors[direction].y, position->height);
         if (eventObjectId == EVENT_OBJECTS_COUNT || gEventObjects[eventObjectId].localId == EVENT_OBJ_ID_PLAYER)
             return NULL;
+    }
+
+    // Devuelve el script del Follower
+    if(gEventObjects[eventObjectId].localId == EVENT_OBJ_ID_FOLLOWER) {
+        return EventScript_PC;
     }
 
     gSelectedEventObject = eventObjectId;

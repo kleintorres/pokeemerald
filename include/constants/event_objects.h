@@ -241,6 +241,7 @@
 #define EVENT_OBJ_GFX_LUGIA                      237
 #define EVENT_OBJ_GFX_HOOH                       238
 #define EVENT_OBJ_GFX_BARD_2                     239
+#define TEST 256
 
 // These are dynamic object gfx ids.
 // They correspond with the values of the VAR_OBJ_GFX_ID_X vars.
@@ -276,5 +277,6 @@
 
 #define EVENT_OBJ_ID_PLAYER 0xFF
 #define EVENT_OBJ_ID_CAMERA 0x7F
+
 
 #endif  // GUARD_CONSTANTS_EVENT_OBJECTS_H

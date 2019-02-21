@@ -1,0 +1,1 @@
+const struct EventObjectGraphicsInfo gOverworldGraphicsInfo_Bulbasaur = {0xFFFF, EVENT_OBJ_PAL_TAG_3, EVENT_OBJ_PAL_TAG_NONE, 256, 16, 32, 5, SHADOW_SIZE_M, FALSE, FALSE, TRACKS_FOOT, &gEventObjectBaseOam_16x32, gEventObjectSpriteOamTables_16x32, gEventObjectImageAnimTable_Standard, gEventObjectPicTable_Cameraman, gDummySpriteAffineAnimTable};
